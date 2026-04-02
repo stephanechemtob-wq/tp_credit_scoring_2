@@ -1,0 +1,69 @@
+meta {
+  name: Prédiction — Profil Solvable (LOW risk)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/predict/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "age": 42,
+    "income": 75000,
+    "loan_amount": 10000,
+    "loan_term": 24,
+    "credit_score": 760,
+    "employment_years": 12,
+    "debt_to_income": 0.15,
+    "num_credit_lines": 6,
+    "num_late_payments": 0,
+    "has_mortgage": 1,
+    "has_dependents": 0,
+    "loan_purpose": "personal",
+    "education_level": "master",
+    "employment_type": "employed"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.prediction: eq 0
+  res.body.recommendation: eq APPROVE
+}
+
+tests {
+  test("Status HTTP 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Prédiction = 0 (solvable)", function() {
+    expect(res.getBody().prediction).to.equal(0);
+  });
+
+  test("Probabilité entre 0 et 1", function() {
+    const proba = res.getBody().probability_of_default;
+    expect(proba).to.be.at.least(0);
+    expect(proba).to.be.at.most(1);
+  });
+
+  test("Risque LOW ou MEDIUM pour profil solvable", function() {
+    const risk = res.getBody().risk_level;
+    expect(["LOW", "MEDIUM"]).to.include(risk);
+  });
+
+  test("Recommandation APPROVE", function() {
+    expect(res.getBody().recommendation).to.equal("APPROVE");
+  });
+
+  test("Latence inférieure à 500ms", function() {
+    expect(res.getBody().latency_ms).to.be.below(500);
+  });
+
+  test("Version du modèle présente", function() {
+    expect(res.getBody().model_version).to.be.a("string");
+  });
+}

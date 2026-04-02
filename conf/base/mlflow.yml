@@ -1,0 +1,22 @@
+# =============================================================================
+# CONFIGURATION KEDRO-MLFLOW 0.12.x
+# =============================================================================
+# kedro-mlflow connecte automatiquement Kedro et MLflow :
+# - Chaque `kedro run` crée un run MLflow avec les paramètres du pipeline.
+#
+# CLOUD-AGNOSTIQUE — changer uniquement mlflow_tracking_uri :
+#   Local SQLite  : sqlite:///mlflow.db
+#   Serveur dédié : http://mon-serveur-mlflow:5000
+#   Databricks    : databricks
+#   Azure ML      : azureml://...
+# =============================================================================
+
+server:
+  mlflow_tracking_uri: mlruns
+  credentials: null
+  request_header_provider:
+    type: null
+
+ui:
+  port: "5000"
+  host: "127.0.0.1"

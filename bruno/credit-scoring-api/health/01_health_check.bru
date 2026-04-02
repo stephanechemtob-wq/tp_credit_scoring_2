@@ -1,0 +1,40 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/health/
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq healthy
+  res.body.model_loaded: eq true
+}
+
+tests {
+  test("Status HTTP 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("API en bonne santé", function() {
+    expect(res.getBody().status).to.equal("healthy");
+  });
+
+  test("Modèle chargé", function() {
+    expect(res.getBody().model_loaded).to.equal(true);
+  });
+
+  test("Version du modèle présente", function() {
+    expect(res.getBody().model_version).to.be.a("string");
+    expect(res.getBody().model_version).to.not.equal("unavailable");
+  });
+
+  test("Environnement défini", function() {
+    expect(res.getBody().environment).to.be.a("string");
+  });
+}

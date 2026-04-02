@@ -1,0 +1,51 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+# Exclusion globale : s'applique à TOUS les hooks
+exclude: |
+  (?x)(
+      ^data/|
+      ^mlruns/|
+      ^models/|
+      ^\.venv/|
+      ^.*\.egg-info/
+  )
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-toml
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: check-symlinks
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: forbid-new-submodules
+      - id: no-commit-to-branch
+        args: ["--branch=main"]
+      - id: detect-private-key
+
+  # Ruff remplace Flake8, isort et (optionnellement) Black
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format  # Remplace Black pour le formatage
+
+  # Mypy pour le typage statique
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args:
+          [
+            --no-strict-optional,
+            --ignore-missing-imports,
+          ]
+        additional_dependencies: [types-requests, types-PyYAML]

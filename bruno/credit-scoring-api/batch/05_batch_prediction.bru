@@ -1,0 +1,109 @@
+meta {
+  name: Prédiction Batch — 3 dossiers mixtes
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/predict/batch
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "records": [
+      {
+        "age": 42,
+        "income": 75000,
+        "loan_amount": 10000,
+        "loan_term": 24,
+        "credit_score": 760,
+        "employment_years": 12,
+        "debt_to_income": 0.15,
+        "num_credit_lines": 6,
+        "num_late_payments": 0,
+        "has_mortgage": 1,
+        "has_dependents": 0,
+        "loan_purpose": "personal",
+        "education_level": "master",
+        "employment_type": "employed"
+      },
+      {
+        "age": 35,
+        "income": 45000,
+        "loan_amount": 18000,
+        "loan_term": 48,
+        "credit_score": 580,
+        "employment_years": 4,
+        "debt_to_income": 0.48,
+        "num_credit_lines": 3,
+        "num_late_payments": 2,
+        "has_mortgage": 0,
+        "has_dependents": 1,
+        "loan_purpose": "auto",
+        "education_level": "bachelor",
+        "employment_type": "employed"
+      },
+      {
+        "age": 23,
+        "income": 18000,
+        "loan_amount": 25000,
+        "loan_term": 60,
+        "credit_score": 340,
+        "employment_years": 0.5,
+        "debt_to_income": 0.85,
+        "num_credit_lines": 1,
+        "num_late_payments": 5,
+        "has_mortgage": 0,
+        "has_dependents": 1,
+        "loan_purpose": "personal",
+        "education_level": "high_school",
+        "employment_type": "unemployed"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.total: eq 3
+}
+
+tests {
+  test("Status HTTP 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Total = 3 résultats", function() {
+    expect(res.getBody().total).to.equal(3);
+  });
+
+  test("Chaque résultat contient les champs obligatoires", function() {
+    const results = res.getBody().results;
+    results.forEach(function(r) {
+      expect(r).to.have.property("prediction");
+      expect(r).to.have.property("probability_of_default");
+      expect(r).to.have.property("risk_level");
+      expect(r).to.have.property("recommendation");
+      expect(r).to.have.property("latency_ms");
+    });
+  });
+
+  test("Somme approved + rejected + review = total", function() {
+    const body = res.getBody();
+    expect(body.approved + body.rejected + body.review).to.equal(body.total);
+  });
+
+  test("Latence batch inférieure à 2000ms", function() {
+    expect(res.getBody().batch_latency_ms).to.be.below(2000);
+  });
+
+  test("Premier dossier approuvé (profil solvable)", function() {
+    expect(res.getBody().results[0].recommendation).to.equal("APPROVE");
+  });
+
+  test("Dernier dossier rejeté (profil risqué)", function() {
+    expect(res.getBody().results[2].recommendation).to.equal("REJECT");
+  });
+}

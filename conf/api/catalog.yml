@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Catalog — Environnement API (conf/api/)
+#
+# Surcharge conf/base/catalog.yml pour l'environnement de serving.
+# Ces datasets sont chargés au démarrage de l'API FastAPI via le lifespan.
+#
+# Pattern : les artefacts ML produits par le pipeline Kedro (training)
+# sont exportés dans data/api/ par le script scripts/export_artifacts.py,
+# puis chargés ici par l'API sans ré-exécuter le pipeline.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Modèle sérialisé (GradientBoostingClassifier) ────────────────────────────
+# Le modèle n'est plus chargé depuis un fichier local,
+# il est récupéré dynamiquement depuis le MLflow Model Registry
+# dans app.py (models:/credit-scoring-model/Production)
+
+# ── Pipeline de preprocessing sérialisé (StandardScaler + encodage) ──────────
+api.preprocessor:
+  type: pickle.PickleDataset
+  filepath: data/api/preprocessor.pkl
+  backend: joblib
+
+# ── Métadonnées du modèle (version, métriques, features, seuil) ──────────────
+api.model_metadata:
+  type: json.JSONDataset
+  filepath: data/api/model_metadata.json

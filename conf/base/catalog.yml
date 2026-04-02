@@ -1,0 +1,183 @@
+# =============================================================================
+# DATA CATALOG — Scoring de Crédit MLOps avec Kedro
+# =============================================================================
+#
+# PRINCIPE CLÉ — CLOUD-AGNOSTIQUE :
+# Ce fichier est la SEULE chose qui change entre les environnements.
+# Le code Python (nodes) ne change JAMAIS, qu'on soit en local, sur AWS S3,
+# GCP GCS ou Azure Blob Storage.
+#
+# LOCAL (développement)  → type: pandas.CSVDataset, filepath: data/...
+# AWS S3 (production)    → type: pandas.CSVDataset, filepath: s3://bucket/...
+# GCP GCS (production)   → type: pandas.CSVDataset, filepath: gcs://bucket/...
+# Azure Blob (production)→ type: pandas.CSVDataset, filepath: abfs://container/...
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# LAYER 01_RAW — Données brutes
+# -----------------------------------------------------------------------------
+raw_credit_data:
+  type: pandas.CSVDataset
+  filepath: data/01_raw/raw_credit_data.csv
+  metadata:
+    kedro-viz:
+      layer: 01_raw
+
+# -----------------------------------------------------------------------------
+# LAYER 02_INTERMEDIATE — Données nettoyées
+# -----------------------------------------------------------------------------
+cleaned_credit_data:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/cleaned_credit_data.csv
+  metadata:
+    kedro-viz:
+      layer: 02_intermediate
+
+# -----------------------------------------------------------------------------
+# LAYER 03_PRIMARY — Splits train / val / test
+# -----------------------------------------------------------------------------
+train_set:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/train_set.csv
+  metadata:
+    kedro-viz:
+      layer: 03_primary
+
+val_set:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/val_set.csv
+  metadata:
+    kedro-viz:
+      layer: 03_primary
+
+test_set:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/test_set.csv
+  metadata:
+    kedro-viz:
+      layer: 03_primary
+
+# -----------------------------------------------------------------------------
+# LAYER 04_FEATURE — Features enrichies
+# -----------------------------------------------------------------------------
+train_set_enriched:
+  type: pandas.CSVDataset
+  filepath: data/04_feature/train_set_enriched.csv
+  metadata:
+    kedro-viz:
+      layer: 04_feature
+
+val_set_enriched:
+  type: pandas.CSVDataset
+  filepath: data/04_feature/val_set_enriched.csv
+  metadata:
+    kedro-viz:
+      layer: 04_feature
+
+test_set_enriched:
+  type: pandas.CSVDataset
+  filepath: data/04_feature/test_set_enriched.csv
+  metadata:
+    kedro-viz:
+      layer: 04_feature
+
+# -----------------------------------------------------------------------------
+# LAYER 05_MODEL_INPUT — Features préprocessées
+# -----------------------------------------------------------------------------
+X_train:
+  type: pandas.CSVDataset
+  filepath: data/05_model_input/X_train.csv
+  metadata:
+    kedro-viz:
+      layer: 05_model_input
+
+X_val:
+  type: pandas.CSVDataset
+  filepath: data/05_model_input/X_val.csv
+  metadata:
+    kedro-viz:
+      layer: 05_model_input
+
+X_test:
+  type: pandas.CSVDataset
+  filepath: data/05_model_input/X_test.csv
+  metadata:
+    kedro-viz:
+      layer: 05_model_input
+
+# -----------------------------------------------------------------------------
+# LAYER 06_MODELS — Artefacts du modèle
+# Pour AWS S3 : filepath: s3://mon-bucket/06_models/preprocessor.pkl
+# Pour GCP GCS : filepath: gcs://mon-bucket/06_models/preprocessor.pkl
+# Pour Azure Blob : filepath: abfs://container/06_models/preprocessor.pkl
+# -----------------------------------------------------------------------------
+preprocessor:
+  type: pickle.PickleDataset
+  filepath: data/06_models/preprocessor.pkl
+  backend: pickle
+  metadata:
+    kedro-viz:
+      layer: 06_models
+
+credit_scoring_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/credit_scoring_model.pkl
+  backend: pickle
+  metadata:
+    kedro-viz:
+      layer: 06_models
+
+# -----------------------------------------------------------------------------
+# LAYER 07_MODEL_OUTPUT — Métriques
+# -----------------------------------------------------------------------------
+model_metrics:
+  type: json.JSONDataset
+  filepath: data/07_model_output/model_metrics.json
+  metadata:
+    kedro-viz:
+      layer: 07_model_output
+
+train_val_metrics:
+  type: json.JSONDataset
+  filepath: data/07_model_output/train_val_metrics.json
+  metadata:
+    kedro-viz:
+      layer: 07_model_output
+
+# -----------------------------------------------------------------------------
+# LAYER 08_REPORTING — Rapports et visualisations
+# -----------------------------------------------------------------------------
+model_metadata:
+  type: json.JSONDataset
+  filepath: data/08_reporting/model_metadata.json
+  metadata:
+    kedro-viz:
+      layer: 08_reporting
+
+performance_report:
+  type: pandas.CSVDataset
+  filepath: data/08_reporting/performance_report.csv
+  metadata:
+    kedro-viz:
+      layer: 08_reporting
+
+feature_importance_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/08_reporting/feature_importance.png
+  save_args:
+    format: png
+    dpi: 150
+  metadata:
+    kedro-viz:
+      layer: 08_reporting
+
+roc_curve_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/08_reporting/roc_curve.png
+  save_args:
+    format: png
+    dpi: 150
+  metadata:
+    kedro-viz:
+      layer: 08_reporting

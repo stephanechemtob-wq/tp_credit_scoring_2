@@ -1,0 +1,11 @@
+training:
+  model_name: gradient_boosting
+  hyperparams:
+    n_estimators: 150
+    learning_rate: 0.05
+    max_depth: 4
+  validation_thresholds:
+    roc_auc: 0.60
+    f1: 0.10
+    precision: 0.30
+    recall: 0.05

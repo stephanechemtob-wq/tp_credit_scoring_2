@@ -1,0 +1,63 @@
+meta {
+  name: Prédiction — Profil à Risque Élevé (HIGH/CRITICAL)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/predict/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "age": 23,
+    "income": 18000,
+    "loan_amount": 25000,
+    "loan_term": 60,
+    "credit_score": 340,
+    "employment_years": 0.5,
+    "debt_to_income": 0.85,
+    "num_credit_lines": 1,
+    "num_late_payments": 5,
+    "has_mortgage": 0,
+    "has_dependents": 1,
+    "loan_purpose": "personal",
+    "education_level": "high_school",
+    "employment_type": "unemployed"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.prediction: eq 1
+  res.body.recommendation: eq REJECT
+}
+
+tests {
+  test("Status HTTP 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Prédiction = 1 (défaut probable)", function() {
+    expect(res.getBody().prediction).to.equal(1);
+  });
+
+  test("Probabilité élevée (> 0.5)", function() {
+    expect(res.getBody().probability_of_default).to.be.above(0.5);
+  });
+
+  test("Risque HIGH ou CRITICAL", function() {
+    const risk = res.getBody().risk_level;
+    expect(["HIGH", "CRITICAL"]).to.include(risk);
+  });
+
+  test("Recommandation REJECT", function() {
+    expect(res.getBody().recommendation).to.equal("REJECT");
+  });
+
+  test("Score de risque > 50", function() {
+    expect(res.getBody().risk_score).to.be.above(50);
+  });
+}

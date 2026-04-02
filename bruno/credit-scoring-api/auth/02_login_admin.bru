@@ -1,0 +1,33 @@
+meta {
+  name: 02 - Login (admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/auth/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  username: admin
+  password: admin_secret
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Scopes admin présents", function() {
+    // Le token admin doit avoir tous les scopes
+    expect(res.getBody().access_token).to.be.a("string");
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setEnvVar("admin_token", res.getBody().access_token);
+  }
+}

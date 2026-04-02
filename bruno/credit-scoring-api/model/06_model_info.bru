@@ -1,0 +1,52 @@
+meta {
+  name: Informations Modèle
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/model/info
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Status HTTP 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Nom du modèle présent", function() {
+    expect(res.getBody().model_name).to.be.a("string");
+    expect(res.getBody().model_name).to.not.equal("unavailable");
+  });
+
+  test("Version du modèle présente", function() {
+    expect(res.getBody().model_version).to.be.a("string");
+  });
+
+  test("Algorithme défini", function() {
+    expect(res.getBody().algorithm).to.be.a("string");
+  });
+
+  test("Liste des features non vide", function() {
+    const features = res.getBody().features;
+    expect(features).to.be.an("array");
+    expect(features.length).to.be.above(0);
+  });
+
+  test("Métriques contiennent roc_auc_test", function() {
+    const metrics = res.getBody().metrics;
+    expect(metrics).to.have.property("roc_auc_test");
+    expect(metrics.roc_auc_test).to.be.above(0);
+  });
+
+  test("Seuil de décision entre 0 et 1", function() {
+    const threshold = res.getBody().threshold;
+    expect(threshold).to.be.at.least(0);
+    expect(threshold).to.be.at.most(1);
+  });
+}

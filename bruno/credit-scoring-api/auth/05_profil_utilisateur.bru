@@ -1,0 +1,31 @@
+meta {
+  name: 05 - Profil utilisateur (GET /auth/me)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/auth/me
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Username présent", function() {
+    expect(res.getBody()).to.have.property("username");
+    expect(res.getBody().username).to.equal("data_scientist");
+  });
+
+  test("Scopes présents", function() {
+    expect(res.getBody()).to.have.property("scopes");
+    expect(res.getBody().scopes).to.be.an("array");
+    expect(res.getBody().scopes).to.include("predict");
+  });
+}

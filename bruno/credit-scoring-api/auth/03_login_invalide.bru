@@ -1,0 +1,26 @@
+meta {
+  name: 03 - Login invalide (doit retourner 401)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/auth/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  username: data_scientist
+  password: mauvais_mot_de_passe
+}
+
+tests {
+  test("Status 401 - Identifiants incorrects", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+
+  test("Message d'erreur présent", function() {
+    expect(res.getBody()).to.have.property("detail");
+  });
+}

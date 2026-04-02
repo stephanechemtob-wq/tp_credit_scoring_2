@@ -1,0 +1,11 @@
+*.egg-info/
+.venv/
+mlruns/
+data/
+test-reports/
+htmlcov/
+__pycache__/
+*.pyc
+dist/
+build/
+conf/local/

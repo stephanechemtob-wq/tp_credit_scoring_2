@@ -1,0 +1,46 @@
+meta {
+  name: 01 - Login (data_scientist)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/auth/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  username: data_scientist
+  password: mlops2024
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Contient access_token", function() {
+    expect(res.getBody()).to.have.property("access_token");
+  });
+
+  test("Contient refresh_token", function() {
+    expect(res.getBody()).to.have.property("refresh_token");
+  });
+
+  test("token_type est bearer", function() {
+    expect(res.getBody().token_type).to.equal("bearer");
+  });
+
+  test("expires_in > 0", function() {
+    expect(res.getBody().expires_in).to.be.above(0);
+  });
+}
+
+script:post-response {
+  // Sauvegarder le token pour les requêtes suivantes
+  if (res.getStatus() === 200) {
+    bru.setEnvVar("access_token", res.getBody().access_token);
+    bru.setEnvVar("refresh_token", res.getBody().refresh_token);
+  }
+}

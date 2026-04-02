@@ -1,0 +1,18 @@
+data_processing:
+  n_samples: 5000
+  random_seed: 42
+  train_ratio: 0.70
+  val_ratio: 0.15
+  # test_ratio = 1 - train_ratio - val_ratio = 0.15
+  expected_columns:
+    - age
+    - income
+    - loan_amount
+    - loan_duration_months
+    - credit_score
+    - num_credit_lines
+    - employment_years
+    - debt_to_income_ratio
+    - num_late_payments
+    - has_mortgage
+    - default

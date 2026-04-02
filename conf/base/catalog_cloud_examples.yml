@@ -1,0 +1,87 @@
+# =============================================================================
+# EXEMPLES DE CATALOG CLOUD-AGNOSTIQUE
+# =============================================================================
+# Ce fichier montre comment basculer le même pipeline vers différents clouds
+# en ne changeant QUE le catalog — sans toucher au code Python.
+#
+# Pour utiliser un exemple, copiez les entrées souhaitées dans catalog.yml
+# et remplacez les valeurs (bucket, account_name, etc.).
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# EXEMPLE 1 — AWS S3 (Amazon Web Services)
+# Prérequis : pip install kedro-datasets[pandas.CSVDataset] s3fs
+# -----------------------------------------------------------------------------
+# raw_credit_data:
+#   type: pandas.CSVDataset
+#   filepath: s3://mon-bucket-mlops/credit-scoring/01_raw/raw_credit_data.csv
+#   credentials: aws_credentials
+#   # Dans conf/local/credentials.yml :
+#   # aws_credentials:
+#   #   key: ${oc.env:AWS_ACCESS_KEY_ID}
+#   #   secret: ${oc.env:AWS_SECRET_ACCESS_KEY}
+#   #   client_kwargs:
+#   #     region_name: eu-west-1
+#
+# credit_scoring_model:
+#   type: pickle.PickleDataset
+#   filepath: s3://mon-bucket-mlops/credit-scoring/06_models/model.pkl
+#   credentials: aws_credentials
+
+# -----------------------------------------------------------------------------
+# EXEMPLE 2 — Google Cloud Storage (GCP)
+# Prérequis : pip install kedro-datasets[pandas.CSVDataset] gcsfs
+# -----------------------------------------------------------------------------
+# raw_credit_data:
+#   type: pandas.CSVDataset
+#   filepath: gcs://mon-bucket-gcp/credit-scoring/01_raw/raw_credit_data.csv
+#   credentials: gcp_credentials
+#   # Dans conf/local/credentials.yml :
+#   # gcp_credentials:
+#   #   token: ${oc.env:GOOGLE_APPLICATION_CREDENTIALS}
+#
+# credit_scoring_model:
+#   type: pickle.PickleDataset
+#   filepath: gcs://mon-bucket-gcp/credit-scoring/06_models/model.pkl
+#   credentials: gcp_credentials
+
+# -----------------------------------------------------------------------------
+# EXEMPLE 3 — Azure Blob Storage (Microsoft Azure)
+# Prérequis : pip install kedro-datasets[pandas.CSVDataset] adlfs
+# (Pattern identique au projet InvoicesPretPourProd avec abfs://)
+# -----------------------------------------------------------------------------
+# raw_credit_data:
+#   type: pandas.CSVDataset
+#   filepath: abfs://credit-scoring/01_raw/raw_credit_data.csv
+#   fs_args:
+#     account_name: ${oc.env:AZURE_STORAGE_ACCOUNT}
+#     anon: False
+#   credentials: azure_credentials
+#   # Dans conf/local/credentials.yml :
+#   # azure_credentials:
+#   #   account_key: ${oc.env:AZURE_STORAGE_KEY}
+#
+# credit_scoring_model:
+#   type: pickle.PickleDataset
+#   filepath: abfs://credit-scoring/06_models/model.pkl
+#   fs_args:
+#     account_name: ${oc.env:AZURE_STORAGE_ACCOUNT}
+
+# -----------------------------------------------------------------------------
+# EXEMPLE 4 — Azure ML + kedro-azureml (pattern du projet InvoicesPretPourProd)
+# Prérequis : pip install kedro-azureml
+# kedro azureml run --pipeline __default__
+# -----------------------------------------------------------------------------
+# Configuration dans conf/base/azureml.yml :
+# azure:
+#   subscription_id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#   experiment_name: "credit-scoring-kedro"
+#   resource_group: "mon-resource-group"
+#   workspace_name: "mon-workspace-ml"
+#   environment_name: credit_scoring_env@latest
+#   temporary_storage:
+#     account_name: monstorageaccount
+#     container: kedro-temp
+#   compute:
+#     __default__:
+#       cluster_name: "cpu-cluster"
