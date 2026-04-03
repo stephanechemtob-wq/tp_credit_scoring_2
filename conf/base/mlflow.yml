@@ -12,7 +12,7 @@
 # =============================================================================
 
 server:
-  mlflow_tracking_uri: mlruns
+  mlflow_tracking_uri: https://dagshub.com/stephanechemtob-wq/tp_credit_scoring_2.mlflow
   credentials: null
   request_header_provider:
     type: null
